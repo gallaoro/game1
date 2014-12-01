@@ -23,10 +23,7 @@ Element.prototype.shoot = function(listofprojectiles) {
     listofprojectiles.push(new Projectile());
 };
 
-Element.prototype.move = function(x, y) {
-    this.x += x;
-    this.y += y;
-};
+Entity.prototype = new Element;
 
 //--------------------------------------------------Projectile
 function Projectile() {
