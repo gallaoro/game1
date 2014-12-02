@@ -4,16 +4,11 @@ function Element(img) {
     this.x = 0;
     this.y = 0;
     this.img = img;
-    this.width = 50;
-    this.height = 50;
+    this.width = 64;
+    this.height = 32;
 }
 Element.prototype.draw = function (gcx) {
     gcx.grawImage(this.img, this.x, this.y);
-};
-
-Element.prototype.move = function (x, y) {
-    this.x += x;
-    this.y += y;
 };
 
 //--------------------------------------------------Entity
@@ -35,35 +30,25 @@ function Projectile(img) {
     Element.call(this, img);
     this.speed = 100;
     this.direction = 0;
+    this.width = 16;
+    this.height = 8;
 }
 Projectile.prototype.move = function (direction) {
     switch (direction) {
         case 0:
-            this.x += speed;
+            this.x += this.speed;
             break;
         case 1:
-            this.y += speed;
+            this.y += this.speed;
             break;
         case 2:
-            this.x -= speed;
+            this.x -= this.speed;
             break;
         case 3:
-            this.y -= speed;
-            break;
-        case "right":
-            this.x += speed;
-            break;
-        case "down":
-            this.y += speed;
-            break;
-        case "left":
-            this.x -= speed;
-            break;
-        case "up":
-            this.y -= speed;
+            this.y -= this.speed;
             break;
         default:
-            this.x += this.direction;
+            this.x += this.speed;
     }
 };
 

@@ -133,17 +133,25 @@ var update = function (modifier) {
     if (40 in keysDown) { // Player holding down
         heroesl[0].y += heroesl[0].speed * modifier;
     }
-    if (40 in keysDown) {
+    if (32 in keysDown) {
         var projectil = new Projectile(Projectile0Image);
         projectil.x = heroesl[0].x + heroesl[0].width;
-        projectil.y = heroesl[0].y;
+        projectil.y = heroesl[0].y + heroesl[0].height / 2-projectil.height/2;
         projectiles0l.push(projectil);
     }
-
+    //Delete projectile outside the canvas
+    for (var i = 0; i < projectiles0l.length; i++) {
+        if (projectiles0l[i].x >= canvas.width + projectiles0l[i].width) {
+            projectiles0l.splice(i, 1);
+        }
+    }
 
     //Move projectiles
     for (var i = 0; i < projectiles0l.length; i++) {
-        projectiles0l[i].move(0);
+        if (projectiles0l[i] !== null) {
+            projectiles0l[i].x += 5;
+        }
+
     }
     //Controls if something is touching
 
