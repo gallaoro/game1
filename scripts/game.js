@@ -12,6 +12,7 @@ var points;
 var keysDown = {};
 var start;
 var then;
+var unabletoshoot = false;
 
 window.onload = function () {
 // Handle keyboard controls
@@ -56,7 +57,6 @@ var initialSet = function () {
     };
     Projectile0Image.src = "images/projectile0.png";
 
-
     //Canvas
     canvas = document.getElementById("canvas");
     ctx = canvas.getContext("2d");
@@ -72,39 +72,16 @@ var initialSet = function () {
     heroesl.push(hero);
 
     //Create an enemy
-    var enemy = new Entity(Enemy0Image);
-    enemy.x = canvas.width - 10;
-    enemy.y = canvas.height - 50;
-    enemy.speed = 256;
-    enemyesl.push(enemy);
+    createenemy(Enemy0Image);
 };
 
-var reset = function () {
-    //Reset all heroes
-    for (var i in heroesl) {
-        i.x = canvas.width / 10;
-        i.y = canvas.height / 2;
-    }
-
-    //Delete all enemyes
-    for (var i in enemyesl) {
-        enemyesl.pop();
-    }
-
-    //Delete all projectiles
-    for (var i in projectilesl) {
-        projectilesl.pop();
-    }
-
-    //Create an enemy
-    var enemy = new Entity(Enemy0Image);
-    enemy.x = canvas.width - 10;
-    enemy.y = canvas.height - 50;
-    enemy.speed = 256;
+var createenemy = function (img) {
+    var enemy = new Entity(img);
+    enemy.x = canvas.width;
+    enemy.y = Math.floor((Math.random() * canvas.height - 64) + 64);
+    ;
+    enemy.speed = 5;
     enemyesl.push(enemy);
-
-    //Reset points
-    points = 0;
 };
 
 //Not used
@@ -134,10 +111,17 @@ var update = function (modifier) {
         heroesl[0].y += heroesl[0].speed * modifier;
     }
     if (32 in keysDown) {
-        var projectil = new Projectile(Projectile0Image);
-        projectil.x = heroesl[0].x + heroesl[0].width;
-        projectil.y = heroesl[0].y + heroesl[0].height / 2-projectil.height/2;
-        projectiles0l.push(projectil);
+        if (!unabletoshoot) {
+            var projectil = new Projectile(Projectile0Image);
+            projectil.x = heroesl[0].x + heroesl[0].width;
+            projectil.y = heroesl[0].y + heroesl[0].height / 2 - projectil.height / 2;
+            projectiles0l.push(projectil);
+            unabletoshoot = true;
+            setTimeout(function () {
+                unabletoshoot = false;
+            }, 100);
+        }
+
     }
     //Delete projectile outside the canvas
     for (var i = 0; i < projectiles0l.length; i++) {
@@ -151,20 +135,58 @@ var update = function (modifier) {
         if (projectiles0l[i] !== null) {
             projectiles0l[i].x += 5;
         }
-
     }
+    //Delete enemys outside the canvas
+    for (var i = 0; i < enemyesl.length; i++) {
+        if (enemyesl[i].x <= 0 - enemyesl[i].width) {
+            enemyesl.splice(i, 1);
+            createenemy(Enemy0Image);
+        }
+    }
+
+    //Move enemys
+    for (var i = 0; i < enemyesl.length; i++) {
+        enemyesl[i].x -= 5;
+    }
+
     //Controls if something is touching
 
-    //control if some heroes are touching a enemy
-    for (var i = 0; i < heroesl.length; i++) {
-        for (var j = 0; j < enemyesl.length; j++) {
-            if (
-                    heroesl[i].x <= (enemyesl[j].x + heroesl[i].width)
-                    && enemyesl[j].x <= (heroesl[i].x + heroesl[i].width)
-                    && heroesl[i].y <= (enemyesl[j].y + enemyesl[j].height)
-                    && enemyesl[j].y <= (heroesl[i].y + enemyesl[j].height)
-                    ) {
-
+    //control if any projectile are touching a enemy
+    lunglistaproiettili=projectiles0l.length;
+    lunglistanemici=enemyesl.length;
+    for (var i = 0; i < lunglistaproiettili; i++) {
+        for (var j = 0; j < lunglistanemici; j++) {
+            if (projectiles0l.length > 0 && enemyesl.length > 0) {
+                if (
+                        projectiles0l[i].x <= (enemyesl[j].x + projectiles0l[i].width)
+                        && enemyesl[j].x <= (projectiles0l[i].x + projectiles0l[i].width)
+                        && projectiles0l[i].y <= (enemyesl[j].y + enemyesl[j].height)
+                        && enemyesl[j].y <= (projectiles0l[i].y + enemyesl[j].height)
+                        ) {
+                    createenemy(Enemy0Image);
+                    enemyesl.splice(j, 1);
+                    createenemy(Enemy0Image);
+                    projectiles0l.splice(i, 1);
+                }
+            }
+        }
+    }
+    //Control if some enemy is touching the hero
+    lunglistanemici=enemyesl.length;
+    lunglistahero=heroesl.length;
+    for (var i = 0; i < lunglistahero; i++) {
+        for (var j = 0; j < lunglistanemici; j++) {
+            if (heroesl.length > 0 && enemyesl.length > 0) {
+                if (
+                        heroesl[i].x <= (enemyesl[j].x + heroesl[i].width)
+                        && enemyesl[j].x <= (heroesl[i].x + heroesl[i].width)
+                        && heroesl[i].y <= (enemyesl[j].y + enemyesl[j].height)
+                        && enemyesl[j].y <= (heroesl[i].y + enemyesl[j].height)
+                        ) {
+                    heroesl.splice(i, 1);
+                    enemyesl.splice(j, 1);
+                    createenemy(Enemy0Image);
+                }
             }
         }
     }
