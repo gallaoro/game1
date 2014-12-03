@@ -6,8 +6,9 @@
 var heroReady, heroImage;
 var Enemy0Ready, Enemy0Image;
 var Projectile0Ready, Projectile0Image;
+var Star0Ready, Star0Image;
 var canvas, ctx;
-var heroesl = [], enemyesl = [], projectiles0l = [];
+var heroesl = [], enemyesl = [], projectiles0l = [], starsl = [];
 var points;
 var keysDown = {};
 var start;
@@ -57,6 +58,14 @@ var initialSet = function () {
     };
     Projectile0Image.src = "images/projectile0.png";
 
+    //Star image
+    Star0Ready = false;
+    Star0Image = new Image();
+    Star0Image.onload = function () {
+        Star0Ready = true;
+    };
+    Star0Image.src = "images/star.png";
+
     //Canvas
     canvas = document.getElementById("canvas");
     ctx = canvas.getContext("2d");
@@ -82,6 +91,16 @@ var createenemy = function (img) {
     ;
     enemy.speed = 5;
     enemyesl.push(enemy);
+};
+
+var createstars = function (img) {
+    for (var i = 0; i < 2; i++) {
+        var star = new Entity(img);
+        star.x = canvas.width+ Math.floor((Math.random() * 10));
+        star.y = Math.floor((Math.random() * canvas.height - 64) + 64);
+        star.speed = 5;
+        starsl.push(star);
+    }
 };
 
 //Not used
@@ -123,6 +142,10 @@ var update = function (modifier) {
         }
 
     }
+    
+    //Create stars
+    createstars(Star0Image);
+    
     //Delete projectile outside the canvas
     for (var i = 0; i < projectiles0l.length; i++) {
         if (projectiles0l[i].x >= canvas.width + projectiles0l[i].width) {
@@ -143,53 +166,22 @@ var update = function (modifier) {
             createenemy(Enemy0Image);
         }
     }
+    //Delete stars outside thecanvas
+    for (var i = 0; i < starsl.length; i++) {
+        if (starsl[i].x <= 0 - 8) {
+            starsl.splice(i, 1);
+        }
+    }
 
     //Move enemys
     for (var i = 0; i < enemyesl.length; i++) {
         enemyesl[i].x -= 5;
     }
-
-    //Controls if something is touching
-
-    //control if any projectile are touching a enemy
-    lunglistaproiettili=projectiles0l.length;
-    lunglistanemici=enemyesl.length;
-    for (var i = 0; i < lunglistaproiettili; i++) {
-        for (var j = 0; j < lunglistanemici; j++) {
-            if (projectiles0l.length > 0 && enemyesl.length > 0) {
-                if (
-                        projectiles0l[i].x <= (enemyesl[j].x + projectiles0l[i].width)
-                        && enemyesl[j].x <= (projectiles0l[i].x + projectiles0l[i].width)
-                        && projectiles0l[i].y <= (enemyesl[j].y + enemyesl[j].height)
-                        && enemyesl[j].y <= (projectiles0l[i].y + enemyesl[j].height)
-                        ) {
-                    createenemy(Enemy0Image);
-                    enemyesl.splice(j, 1);
-                    createenemy(Enemy0Image);
-                    projectiles0l.splice(i, 1);
-                }
-            }
-        }
+    //Move stars
+    for (var i = 0; i < starsl.length; i++) {
+        starsl[i].x -= 8;
     }
-    //Control if some enemy is touching the hero
-    lunglistanemici=enemyesl.length;
-    lunglistahero=heroesl.length;
-    for (var i = 0; i < lunglistahero; i++) {
-        for (var j = 0; j < lunglistanemici; j++) {
-            if (heroesl.length > 0 && enemyesl.length > 0) {
-                if (
-                        heroesl[i].x <= (enemyesl[j].x + heroesl[i].width)
-                        && enemyesl[j].x <= (heroesl[i].x + heroesl[i].width)
-                        && heroesl[i].y <= (enemyesl[j].y + enemyesl[j].height)
-                        && enemyesl[j].y <= (heroesl[i].y + enemyesl[j].height)
-                        ) {
-                    heroesl.splice(i, 1);
-                    enemyesl.splice(j, 1);
-                    createenemy(Enemy0Image);
-                }
-            }
-        }
-    }
+    //contollicollisioni();
 };
 
 var render = function () {
@@ -200,6 +192,13 @@ var render = function () {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = fill;
 
+     //Draw stars
+    if (Star0Ready) {
+        for (var i = 0; i < starsl.length; i++) {
+            ctx.drawImage(starsl[i].img, starsl[i].x, starsl[i].y);
+        }
+
+    }
     //Draw heroes
     if (heroReady) {
         for (var i = 0; i < heroesl.length; i++) {
@@ -215,7 +214,7 @@ var render = function () {
 
     }
 
-    //Draw enemyes
+    //Draw projectiles
     if (Projectile0Ready) {
         for (var i = 0; i < projectiles0l.length; i++) {
             ctx.drawImage(projectiles0l[i].img, projectiles0l[i].x, projectiles0l[i].y);
@@ -241,4 +240,50 @@ var main = function () {
 
     // Request to do this again ASAP
     requestAnimationFrame(main);
+};
+
+var contollicollisioni = function () {
+    var enemytodelete = [];
+    var projectiletodelete = [];
+    for (var i = 0; i < enemyesl.length; ++i) {
+        for (var j = 0; j < projectiles0l.length; ++j) {
+            if (
+                    projectiles0l[j].x <= (enemyesl[i].x + projectiles0l[j].width)
+                    && enemyesl[i].x <= (projectiles0l[j].x + projectiles0l[j].width)
+                    && projectiles0l[j].y <= (enemyesl[i].y + enemyesl[i].height)
+                    && enemyesl[i].y <= (projectiles0l[j].y + enemyesl[i].height)
+                    ) {
+                enemytodelete.push(i);
+                projectiletodelete.push(j);
+            }
+        }
+    }
+    enemytodelete = removedoublefromarray(enemytodelete);
+    projectiletodelete = removedoublefromarray(projectiletodelete);
+
+    for (var i = 0; i < enemytodelete; ++i) {
+        enemyesl.split(enemytodelete[i], 1);
+    }
+    for (var i = 0; i < projectiletodelete; ++i) {
+        projectiles0l.split(projectiletodelete[i], 1);
+    }
+};
+
+var removedoublefromarray = function (list) {
+    list.sort();
+    var last = list[0];
+    var nuova = [];
+    if (list.length < 2) {
+        return list;
+    }
+    for (var i = 1; i < list.length; ++i) {
+        if (last !== list[i]) {
+            nuova.push(last);
+            last = list[i];
+        }
+    }
+    if (nuova.lenght === 0) {
+        nuova.push(last);
+    }
+    return nuova;
 };
