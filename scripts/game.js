@@ -9,7 +9,7 @@ var Projectile0Ready, Projectile0Image;
 var Star0Ready, Star0Image;
 var canvas, ctx;
 var heroesl = [], enemyesl = [], projectiles0l = [], starsl = [];
-var points;
+var points = 0;
 var keysDown = {};
 var start;
 var then;
@@ -96,7 +96,7 @@ var createenemy = function (img) {
 var createstars = function (img) {
     for (var i = 0; i < 2; i++) {
         var star = new Entity(img);
-        star.x = canvas.width+ Math.floor((Math.random() * 10));
+        star.x = canvas.width + Math.floor((Math.random() * 10));
         star.y = Math.floor((Math.random() * canvas.height - 64) + 64);
         star.speed = 5;
         starsl.push(star);
@@ -142,10 +142,10 @@ var update = function (modifier) {
         }
 
     }
-    
+
     //Create stars
     createstars(Star0Image);
-    
+
     //Delete projectile outside the canvas
     for (var i = 0; i < projectiles0l.length; i++) {
         if (projectiles0l[i].x >= canvas.width + projectiles0l[i].width) {
@@ -181,7 +181,7 @@ var update = function (modifier) {
     for (var i = 0; i < starsl.length; i++) {
         starsl[i].x -= 8;
     }
-    //contollicollisioni();
+    collisioncontrol();
 };
 
 var render = function () {
@@ -192,7 +192,7 @@ var render = function () {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = fill;
 
-     //Draw stars
+    //Draw stars
     if (Star0Ready) {
         for (var i = 0; i < starsl.length; i++) {
             ctx.drawImage(starsl[i].img, starsl[i].x, starsl[i].y);
@@ -242,7 +242,7 @@ var main = function () {
     requestAnimationFrame(main);
 };
 
-var contollicollisioni = function () {
+var collisioncontrol = function () {
     var enemytodelete = [];
     var projectiletodelete = [];
     for (var i = 0; i < enemyesl.length; ++i) {
@@ -255,18 +255,26 @@ var contollicollisioni = function () {
                     ) {
                 enemytodelete.push(i);
                 projectiletodelete.push(j);
+                points++;
             }
         }
     }
     enemytodelete = removedoublefromarray(enemytodelete);
     projectiletodelete = removedoublefromarray(projectiletodelete);
 
-    for (var i = 0; i < enemytodelete; ++i) {
-        enemyesl.split(enemytodelete[i], 1);
+    for (var k = 0; k < enemytodelete.length; k++) {
+        enemyesl.splice(enemytodelete[k], 1);
     }
-    for (var i = 0; i < projectiletodelete; ++i) {
-        projectiles0l.split(projectiletodelete[i], 1);
+    for (var l = 0; l < projectiletodelete.length; l++) {
+        projectiles0l.splice(projectiletodelete[l], 1);
     }
+
+    if (enemyesl.length < 2) {
+        createenemy(Enemy0Image);
+        createenemy(Enemy0Image);
+    }
+
+    document.getElementById("points").innerHTML = "Pints: " + points;
 };
 
 var removedoublefromarray = function (list) {
