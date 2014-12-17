@@ -70,7 +70,7 @@ var initialSet = function () {
     canvas = document.getElementById("canvas");
     ctx = canvas.getContext("2d");
     canvas.width = window.innerWidth;
-    canvas.height = 500;
+    canvas.height = window.innerHeight;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     //Create the Hero and set to the start point
@@ -87,8 +87,7 @@ var initialSet = function () {
 var createenemy = function (img) {
     var enemy = new Entity(img);
     enemy.x = canvas.width;
-    enemy.y = Math.floor((Math.random() * canvas.height - 64) + 64);
-    ;
+    enemy.y = Math.floor((Math.random() * canvas.height - 64) + 64);F
     enemy.speed = 5;
     enemyesl.push(enemy);
 };
@@ -163,6 +162,7 @@ var update = function (modifier) {
     for (var i = 0; i < enemyesl.length; i++) {
         if (enemyesl[i].x <= 0 - enemyesl[i].width) {
             enemyesl.splice(i, 1);
+            createenemy(Enemy0Image);
             createenemy(Enemy0Image);
         }
     }
